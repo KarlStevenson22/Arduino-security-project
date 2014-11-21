@@ -11,6 +11,7 @@ const int ButtonPin = 2;
 const int LEDPin = 9;
 const int GLEDPin = 10;
 const int RLEDPin = 11;
+const int GLED2Pin = 12;
 int button = 0;
 int check = 0;
 
@@ -19,6 +20,7 @@ void setup(){
   pinMode(LEDPin, OUTPUT);
   pinMode(GLEDPin, OUTPUT);
   pinMode(RLEDPin, OUTPUT);
+  pinMode(GLED2Pin, OUTPUT);
   pinMode(ButtonPin, INPUT);
   
   Serial.begin(9600);
@@ -76,11 +78,12 @@ void loop(){
   int i;
   
   //center values and thresholds for x,y and z sensitivity
-  int tholdx = 50;
+  int tholdx = 100;
   int centerx = 13;
-  int tholdy = 50;
+  int tholdy = 150;
   int centery = -8;
-  int tholdz = 100;
+  int tholdzup = 50;
+  int tholdzdown = 75;
   int centerz = 280;
  
   button = digitalRead(ButtonPin);
@@ -107,17 +110,21 @@ void loop(){
       
       
     
-    if ((z < centerz - tholdz) && (x < centerx + tholdx) && (x > centerx - tholdx) && (y < centery + tholdy) && (y > centery - tholdy))
+    if ((z < centerz - tholdzdown) && (x < centerx + tholdx) && (x > centerx - tholdx) && (y < centery + tholdy) && (y > centery - tholdy))
     {
       check = 1;
       digitalWrite(GLEDPin, HIGH);
       digitalWrite(RLEDPin, LOW);
+      tone(8,500,2000);
+      delay(3000);
     }
-    else if ((z > centerz + tholdz) && (x < centerx + tholdx) && (x > centerx - tholdx) && (y < centery + tholdy) && (y > centery - tholdy))
+    else if ((z > centerz + tholdzup) && (x < centerx + tholdx) && (x > centerx - tholdx) && (y < centery + tholdy) && (y > centery - tholdy))
     {
       check = 1;
-      digitalWrite(GLEDPin, HIGH);
+      digitalWrite(GLED2Pin, HIGH);
       digitalWrite(RLEDPin, LOW);
+      tone(8,1000,2000);
+      delay(3000);
     }    
     else if (check == 0)
     {
@@ -128,6 +135,7 @@ void loop(){
     {
       digitalWrite(RLEDPin, HIGH);
       digitalWrite(GLEDPin, LOW);
+      digitalWrite(GLED2Pin, LOW);
     }      
 
 }
