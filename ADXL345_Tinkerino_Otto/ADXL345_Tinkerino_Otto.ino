@@ -59,9 +59,9 @@ void loop()
   // Initialisation at rest
   if (is_init == 0)
   { 
-    for (count = 0; count < 20; count + 1)
+    Serial.println("Initialising...");
+    for (count = 0; count < 20; count++)
     {
-      Serial.println("Initialising...");
       offset[1] = offset[1] + x;
       offset[2] = offset[2] + y;
       offset[3] = offset[3] + z;
