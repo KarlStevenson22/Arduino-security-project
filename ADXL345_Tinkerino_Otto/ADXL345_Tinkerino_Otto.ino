@@ -89,7 +89,7 @@ void loop()
     // Converting increments
     gx = (x-offset[1])*gravi;
     gy = (y-offset[2])*gravi;
-    gz = (offset[3])*gravi;
+    gz = (z)*gravi;
     
     // Calculating pitch and roll
     x_angle = atan(gx/gz)*57.296;     // 57.296 converting to degrees from radians
