@@ -74,7 +74,7 @@ void loop()
     Serial.println("Done!");
   }
   // Soft reset
-  else if (button = HIGH)
+  else if (button == HIGH)
   {
     is_init = 0;
     digitalWrite(GLED1_Pin, LOW);
