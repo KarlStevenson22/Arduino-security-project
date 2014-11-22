@@ -57,7 +57,7 @@ void loop()
   adxl.readAccel(&x, &y, &z);
   
   // Initialisation at rest
-  if (init == 0)
+  if (is_init == 0)
   { 
     for (count = 0; count < 20; count + 1)
     {
