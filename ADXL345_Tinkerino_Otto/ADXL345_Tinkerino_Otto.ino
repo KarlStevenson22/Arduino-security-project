@@ -59,6 +59,7 @@ void loop()
   // Initialisation at rest
   if (is_init == 0)
   { 
+    digitalWrite(WLED_Pin, HIGH)
     Serial.println("Initialising...");
     for (count = 0; count < 20; count++)
     {
@@ -71,6 +72,7 @@ void loop()
     offset[3] = offset[3]/20;   
     is_init = 1;
     digitalWrite(WLED_Pin, LOW);
+    digitalWrite(RLED_Pin, HIGH);
     Serial.println("Done!");
   }
   // Soft reset
