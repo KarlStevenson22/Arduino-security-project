@@ -1,0 +1,95 @@
+#include <Adafruit_GPS.h>
+#include <SoftwareSerial.h>
+ 
+SoftwareSerial gpsSerial(3, 2);
+ 
+Adafruit_GPS GPS(&gpsSerial);
+ 
+// The timer is used to control the output.
+uint32_t timer = millis();
+ 
+const int gpsEnablePin = 7;
+
+// Lock constants
+
+// Time
+int hourLock = 19;
+int minLock = 10;
+int minThresh = 5;
+
+// Date
+int dayLock = 29;
+int monLock = 11;
+int yearLock = 2014;
+
+// Position
+int longLock = 5245;
+int latLock = 114;
+int posThresh = 100;
+
+// Satelites
+int satLock = 6;
+int satThresh = 3
+
+// Stage Number
+int stage 
+
+void setup()
+{
+  Serial.begin(115200);
+  GPS.begin(9600);
+  
+  GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
+  
+  // 1 Hz update rate
+  GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);
+  
+  stage =0;
+}
+void loop()
+{
+  char c = GPS.read();
+  
+  // In case the message cannot be parsed
+  if (GPS.newNMEAreceived()) 
+  {
+    if (!GPS.parse(GPS.lastNMEA()))
+      return;  
+  }
+  
+  // Keeps the timerino in check
+  if (timer > millis())  timer = millis();
+  
+  // Checks against the location, time and date every 5 or so seconds
+  if (millis() - timer > 5000) 
+  {
+    timer = millis(); // Resets timer for the next loop
+     
+    if ((stage == 0) && (GPS.hour == hourLock))
+    {
+      Serial.println("Hour is check.");
+    }
+    else if ((stage == 1) && (GPS.minute > minLock - minThresh) && (GPS.minute < minLock - minThresh))
+      Serial.println("Minutes are check!");
+    else if ((stage == 2) && (GPS.day == dayLock))
+    {
+      Serial.println("Day is correct!"; 
+    }
+    else if ((stage == 3) && (GPS.month == monLock))
+    {
+      Serial.println("Month is checkerino!");
+    }
+    else if ((stage == 4) && (GPS.year == yearLock))
+    {
+      Serial.println("Year is correct!");
+    }
+    else if ((stage == 5) && (GPS.fix > satLock - satThresh) && (GPS.fix < satLock + satThresh))
+    {
+      Serial.println("Number of satellites is correct!");
+    }
+    else if (stage == 6)
+    {
+      Serial.println("The winner is you!");
+    }
+  }
+}
