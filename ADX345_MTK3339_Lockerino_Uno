@@ -1,39 +1,68 @@
 #include <Adafruit_GPS.h>
 #include <SoftwareSerial.h>
+#include <string.h>
  
 SoftwareSerial gpsSerial(3, 2);
- 
+
 Adafruit_GPS GPS(&gpsSerial);
- 
+
 // The timer is used to control the output.
 uint32_t timer = millis();
+
+const int gpsEnablePin = 7;
+
+// Declaring pin vars
+const int GLED1 = 8;
+const int GLED2 = 9;
+const int GLED3 = 10;
+const int GLED4 = 11;
+const int RLED = 12;
 
 // Lock constants
 
 // Time
-int hourLock = 19;
-int minLock = 10;
-int minThresh = 5;
+const int hourLock = 15;
+const int minLock = 55;
+const int minThresh = 5;
 
 // Date
-int dayLock = 29;
-int monLock = 11;
-int yearLock = 2014;
+const int dayLock = 30;
+const int monLock = 11;
+const int yearLock = 14;
 
 // Position
-int longLock = 5245;
-int latLock = 114;
-int posThresh = 100;
+const int latLock = 5245;
+const int longLock = 114;
+const int posThresh = 100;
 
 // Satelites
-int satLock = 6;
-int satThresh = 3;
+const int satLock = 6;
+const int satThresh = 6;
 
 // Stage Number
-int stage = 0;
+int stage;
 
 void setup()
 {
+  // Stage reset
+  stage = 0;
+  
+  // Setting up pins
+  pinMode(GLED1, OUTPUT);
+  pinMode(GLED2, OUTPUT);
+  pinMode(GLED3, OUTPUT);
+  pinMode(GLED4, OUTPUT);
+  pinMode(RLED, OUTPUT);
+
+  // Resetting all LEDs
+  digitalWrite(8, LOW);
+  digitalWrite(9, LOW);  
+  digitalWrite(10, LOW);
+  digitalWrite(11, LOW);
+  digitalWrite(12, HIGH);
+  
+  pinMode(gpsEnablePin, OUTPUT);
+  
   Serial.begin(115200);
   GPS.begin(9600);
   
@@ -42,12 +71,20 @@ void setup()
   // 1 Hz update rate
   GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);
   
-  stage = 0;
-}
-void loop()
-{
-  char c = GPS.read();
+  // http://forums.adafruit.com/viewtopic.php?f=22&t=41452
+  digitalWrite(gpsEnablePin, LOW); // Turn GPS off
   
+  delay(5000);
+  
+  digitalWrite(gpsEnablePin, HIGH); // Turn GPS on
+  
+  delay(1000);
+}
+
+void loop()
+{  
+  char c = GPS.read();
+
   // In case the message cannot be parsed
   if (GPS.newNMEAreceived()) 
   {
@@ -62,32 +99,119 @@ void loop()
   if (millis() - timer > 5000) 
   {
     timer = millis(); // Resets timer for the next loop
+    
+    // Outputs of the GPS readings
+    Serial.println(stage);
+    Serial.print("\nTime: ");
+    Serial.print(GPS.hour, DEC); Serial.print(':');
+    Serial.print(GPS.minute, DEC); Serial.print(':');
+    Serial.print(GPS.seconds, DEC); Serial.print('.');
+    Serial.print("Date: ");
+    Serial.print(GPS.day, DEC); Serial.print('/');
+    Serial.print(GPS.month, DEC); Serial.print("/20");
+    Serial.println(GPS.year, DEC);
+    Serial.print("Fix: "); Serial.print((int)GPS.fix);
+    Serial.print(" quality: "); Serial.println((int)GPS.fixquality); 
+    if (GPS.fix) 
+    {
+      Serial.print("Location: ");
+      Serial.print(GPS.latitude, 4); Serial.print(GPS.lat);
+      Serial.print(", "); 
+      Serial.print(GPS.longitude, 4); Serial.println(GPS.lon);
+      Serial.print("Satellites: "); Serial.println((int)GPS.satellites);
+    }
+    else 
+    {
+      Serial.println("No sat fix :-(");
+    }
      
+    // Security stage conditionals
     if ((stage == 0) && (GPS.hour == hourLock))
     {
-      Serial.println("Hour is check.");
+      Serial.println("Hour is checkerino!");
+      digitalWrite(8, HIGH);
+      digitalWrite(9, LOW);  
+      digitalWrite(10, LOW);
+      digitalWrite(11, LOW);
+      stage = 1;
     }
-    else if ((stage == 1) && (GPS.minute > minLock - minThresh) && (GPS.minute < minLock - minThresh))
-      Serial.println("Minutes are check!");
+    else if ((stage == 1) && (GPS.minute > minLock - minThresh) && (GPS.minute < minLock + minThresh))
+    {
+      Serial.println("Minutes are checkerino!");
+      digitalWrite(8, LOW);
+      digitalWrite(9, HIGH);  
+      digitalWrite(10, LOW);
+      digitalWrite(11, LOW);
+      stage = 2;
+    }
     else if ((stage == 2) && (GPS.day == dayLock))
     {
-      Serial.println("Day is correct!"); 
+      Serial.println("Day is checkerino!"); 
+      digitalWrite(8, HIGH);
+      digitalWrite(9, HIGH);  
+      digitalWrite(10, LOW);
+      digitalWrite(11, LOW);
+      stage = 3;
     }
     else if ((stage == 3) && (GPS.month == monLock))
     {
       Serial.println("Month is checkerino!");
+      digitalWrite(8, LOW);
+      digitalWrite(9, LOW);  
+      digitalWrite(10, HIGH);
+      digitalWrite(11, LOW);
+      stage = 4;
     }
     else if ((stage == 4) && (GPS.year == yearLock))
     {
-      Serial.println("Year is correct!");
+      Serial.println("Year is checkerino!");
+      digitalWrite(8, HIGH);
+      digitalWrite(9, LOW);  
+      digitalWrite(10, HIGH);
+      digitalWrite(11, LOW);
+      stage = 5;
     }
-    else if ((stage == 5) && (GPS.fix > satLock - satThresh) && (GPS.fix < satLock + satThresh))
+    else if ((stage == 5) && (GPS.satellites > satLock - satThresh) && (GPS.satellites < satLock + satThresh))
     {
-      Serial.println("Number of satellites is correct!");
+      Serial.println("Number of satellites is checkerino!");
+      digitalWrite(8, LOW);
+      digitalWrite(9, HIGH);  
+      digitalWrite(10, HIGH);
+      digitalWrite(11, LOW);
+      stage = 6;
     }
-    else if (stage == 6)
+    else if ((stage == 6) && (GPS.latitude > latLock - posThresh) && (GPS.latitude < latLock + posThresh))
     {
-      Serial.println("The winner is you!");
+      Serial.println("Latitude is checkerino!");
+      digitalWrite(8, HIGH);
+      digitalWrite(9, HIGH);  
+      digitalWrite(10, HIGH);
+      digitalWrite(11, LOW);
+      stage = 7;
+    }
+    else if ((stage == 7) && (GPS.longitude > longLock - posThresh) && (GPS.longitude < longLock + posThresh))
+    {
+      Serial.println("Longitude is checkerino!");
+      digitalWrite(8, LOW);
+      digitalWrite(9, LOW);  
+      digitalWrite(10, LOW);
+      digitalWrite(11, HIGH);
+      stage = 8;
+    }
+    else if (stage == 8)
+    {
+      Serial.println("ACCESS GRANTED");
+      digitalWrite(8, LOW);
+      digitalWrite(9, LOW);  
+      digitalWrite(10, LOW);
+      digitalWrite(11, HIGH);
+      digitalWrite(12, LOW);
+    }
+    
+    // Annoying spammy bit
+    if (stage != 8)
+    {
+      Serial.println("ACCESS DENIED");
     }
   }
 }
