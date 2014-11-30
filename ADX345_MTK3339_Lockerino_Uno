@@ -7,8 +7,6 @@ Adafruit_GPS GPS(&gpsSerial);
  
 // The timer is used to control the output.
 uint32_t timer = millis();
- 
-const int gpsEnablePin = 7;
 
 // Lock constants
 
@@ -29,10 +27,10 @@ int posThresh = 100;
 
 // Satelites
 int satLock = 6;
-int satThresh = 3
+int satThresh = 3;
 
 // Stage Number
-int stage 
+int stage = 0;
 
 void setup()
 {
@@ -44,7 +42,7 @@ void setup()
   // 1 Hz update rate
   GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);
   
-  stage =0;
+  stage = 0;
 }
 void loop()
 {
@@ -73,7 +71,7 @@ void loop()
       Serial.println("Minutes are check!");
     else if ((stage == 2) && (GPS.day == dayLock))
     {
-      Serial.println("Day is correct!"; 
+      Serial.println("Day is correct!"); 
     }
     else if ((stage == 3) && (GPS.month == monLock))
     {
