@@ -46,7 +46,7 @@ const int satThresh = 100;
 int thold = 20;                     // Sensitivity threshold 
 int x_lock[3] = {0, 45, -45};        // x_axis angle lock values
 int y_lock[3] = {0, 0, 0};        // y_axis angle lock values
-int z_lock[3] = {10, 4, 4};          // acceleration lock values
+int z_lock[3] = {10, 5, 5};          // acceleration lock values
 
 // Stage Number
 int stage;
@@ -87,9 +87,10 @@ void setup()
   GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);  
   // 1 Hz update rate
   GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);  
-  // http://forums.adafruit.com/viewtopic.php?f=22&t=41452
+  
+  // Pin declarations
   digitalWrite(gpsEnablePin, LOW); // Turn GPS off
-  delay(5000);
+  delay(5000)  
   digitalWrite(gpsEnablePin, HIGH); // Turn GPS on 
   delay(1000);
   
@@ -142,7 +143,6 @@ void loop()
     // Outputs of the GPS readings
     if (stage <= 7)
     {
-      Serial.println(stage);
       Serial.print("\nTime: ");
       Serial.print(GPS.hour, DEC); Serial.print(':');
       Serial.print(GPS.minute, DEC); Serial.print(':');
@@ -153,6 +153,7 @@ void loop()
       Serial.println(GPS.year, DEC);
       Serial.print("Fix: "); Serial.print((int)GPS.fix);
       Serial.print(" quality: "); Serial.println((int)GPS.fixquality); 
+      Serial.print("Stage: "); Serial.println(stage);
     }
     if ((GPS.fix == 1) && (stage <= 7)) 
     {
@@ -170,7 +171,7 @@ void loop()
     // Security stage conditionals
     if ((stage == 0) && (GPS.hour == hourLock))
     {
-      Serial.println("Hour is checkerino!");
+      Serial.println("Hour is check!");
       digitalWrite(8, HIGH);
       digitalWrite(9, LOW);  
       digitalWrite(10, LOW);
@@ -179,7 +180,7 @@ void loop()
     }
     else if ((stage == 1) && (GPS.minute > minLock - minThresh) && (GPS.minute < minLock + minThresh))
     {
-      Serial.println("Minutes are checkerino!");
+      Serial.println("Minutes are check!");
       digitalWrite(8, LOW);
       digitalWrite(9, HIGH);  
       digitalWrite(10, LOW);
@@ -188,7 +189,7 @@ void loop()
     }
     else if ((stage == 2) && (GPS.day == dayLock))
     {
-      Serial.println("Day is checkerino!"); 
+      Serial.println("Day is check!"); 
       digitalWrite(8, HIGH);
       digitalWrite(9, HIGH);  
       digitalWrite(10, LOW);
@@ -197,7 +198,7 @@ void loop()
     }
     else if ((stage == 3) && (GPS.month == monLock))
     {
-      Serial.println("Month is checkerino!");
+      Serial.println("Month is check!");
       digitalWrite(8, LOW);
       digitalWrite(9, LOW);  
       digitalWrite(10, HIGH);
@@ -215,25 +216,25 @@ void loop()
     }
     else if ((stage == 5) && (GPS.satellites > satLock - satThresh) && (GPS.satellites < satLock + satThresh))
     {
-      Serial.println("Number of satellites is checkerino!");
+      Serial.println("Number of satellites is check!");
       digitalWrite(8, LOW);
       digitalWrite(9, HIGH);  
       digitalWrite(10, HIGH);
       digitalWrite(11, LOW);
       stage = 6;
     }
-    else if ((stage == 6)) // && (GPS.latitude > latLock - posThresh) && (GPS.latitude < latLock + posThresh))
+    else if ((stage == 6) && (GPS.latitude > latLock - posThresh) && (GPS.latitude < latLock + posThresh))
     {
-      Serial.println("Latitude is checkerino!");
+      Serial.println("Latitude is check!");
       digitalWrite(8, HIGH);
       digitalWrite(9, HIGH);  
       digitalWrite(10, HIGH);
       digitalWrite(11, LOW);
       stage = 7;
     }
-    else if ((stage == 7)) // && (GPS.longitude > longLock - posThresh) && (GPS.longitude < longLock + posThresh))
+    else if ((stage == 7) && (GPS.longitude > longLock - posThresh) && (GPS.longitude < longLock + posThresh))
     {
-      Serial.println("Longitude is checkerino!");
+      Serial.println("Longitude is check!");
       digitalWrite(8, LOW);
       digitalWrite(9, LOW);  
       digitalWrite(10, LOW);
@@ -242,13 +243,13 @@ void loop()
     }
     else if ((stage >= 8) && (stage <= 10))
     {
-      Serial.println("GPS is set, proceed to shake device");
+      Serial.println("Location verified, proceeding to the next phase...");
       
       adxl.readAccel(&x, &y, &z);
       
       if (is_init == 0)
       { 
-        Serial.println("Initialising...");
+        Serial.println("Initialising movement recognition...");
         delay(2500);
         offset[0] = 0;
         offset[1] = 0;
@@ -318,7 +319,8 @@ void loop()
       digitalWrite(10, LOW);
       digitalWrite(11, LOW);
       digitalWrite(12, LOW);
-      Serial.println("ACCESS GRANTED!!! The winner is you!!!");
+      Serial.println("ACCESS GRANTED!");
     }     
   }
 }
+
