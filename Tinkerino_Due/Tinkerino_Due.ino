@@ -1,5 +1,6 @@
 #include <Adafruit_GPS.h>
 #include <SoftwareSerial.h>
+#include <LiquidCrystal.h>
 #include <Wire.h>
 #include <ADXL345.h>
 
@@ -72,11 +73,11 @@ void setup()
   pinMode(RLED, OUTPUT);
 
   // Resetting all LEDs
-  digitalWrite(8, LOW);
-  digitalWrite(9, LOW);  
-  digitalWrite(10, LOW);
-  digitalWrite(11, LOW);
-  digitalWrite(12, HIGH);
+  digitalWrite(GLED1, LOW);
+  digitalWrite(GLED2, LOW);  
+  digitalWrite(GLED3, LOW);
+  digitalWrite(GLED4, LOW);
+  digitalWrite(RLED, HIGH);
   
   pinMode(gpsEnablePin, OUTPUT);
   
@@ -90,7 +91,7 @@ void setup()
   
   // Pin declarations
   digitalWrite(gpsEnablePin, LOW); // Turn GPS off
-  delay(5000)  
+  delay(5000);  
   digitalWrite(gpsEnablePin, HIGH); // Turn GPS on 
   delay(1000);
   
@@ -172,73 +173,73 @@ void loop()
     if ((stage == 0) && (GPS.hour == hourLock))
     {
       Serial.println("Hour is check!");
-      digitalWrite(8, HIGH);
-      digitalWrite(9, LOW);  
-      digitalWrite(10, LOW);
-      digitalWrite(11, LOW);
+      digitalWrite(GLED1, HIGH);
+      digitalWrite(GLED2, LOW);  
+      digitalWrite(GLED3, LOW);
+      digitalWrite(GLED4, LOW);
       stage = 1;
     }
     else if ((stage == 1) && (GPS.minute > minLock - minThresh) && (GPS.minute < minLock + minThresh))
     {
       Serial.println("Minutes are check!");
-      digitalWrite(8, LOW);
-      digitalWrite(9, HIGH);  
-      digitalWrite(10, LOW);
-      digitalWrite(11, LOW);
+      digitalWrite(GLED1, LOW);
+      digitalWrite(GLED2, HIGH);  
+      digitalWrite(GLED3, LOW);
+      digitalWrite(GLED4, LOW);
       stage = 2;
     }
     else if ((stage == 2) && (GPS.day == dayLock))
     {
       Serial.println("Day is check!"); 
-      digitalWrite(8, HIGH);
-      digitalWrite(9, HIGH);  
-      digitalWrite(10, LOW);
-      digitalWrite(11, LOW);
+      digitalWrite(GLED1, HIGH);
+      digitalWrite(GLED2, HIGH);  
+      digitalWrite(GLED3, LOW);
+      digitalWrite(GLED4, LOW);
       stage = 3;
     }
     else if ((stage == 3) && (GPS.month == monLock))
     {
       Serial.println("Month is check!");
-      digitalWrite(8, LOW);
-      digitalWrite(9, LOW);  
-      digitalWrite(10, HIGH);
-      digitalWrite(11, LOW);
+      digitalWrite(GLED1, LOW);
+      digitalWrite(GLED2, LOW);  
+      digitalWrite(GLED3, HIGH);
+      digitalWrite(GLED4, LOW);
       stage = 4;
     }
     else if ((stage == 4) && (GPS.year == yearLock))
     {
       Serial.println("Year is checkerino!");
-      digitalWrite(8, HIGH);
-      digitalWrite(9, LOW);  
-      digitalWrite(10, HIGH);
-      digitalWrite(11, LOW);
+      digitalWrite(GLED1, HIGH);
+      digitalWrite(GLED2, LOW);  
+      digitalWrite(GLED3, HIGH);
+      digitalWrite(GLED4, LOW);
       stage = 5;
     }
     else if ((stage == 5) && (GPS.satellites > satLock - satThresh) && (GPS.satellites < satLock + satThresh))
     {
       Serial.println("Number of satellites is check!");
-      digitalWrite(8, LOW);
-      digitalWrite(9, HIGH);  
-      digitalWrite(10, HIGH);
-      digitalWrite(11, LOW);
+      digitalWrite(GLED1, LOW);
+      digitalWrite(GLED2, HIGH);  
+      digitalWrite(GLED3, HIGH);
+      digitalWrite(GLED4, LOW);
       stage = 6;
     }
     else if ((stage == 6) && (GPS.latitude > latLock - posThresh) && (GPS.latitude < latLock + posThresh))
     {
       Serial.println("Latitude is check!");
-      digitalWrite(8, HIGH);
-      digitalWrite(9, HIGH);  
-      digitalWrite(10, HIGH);
-      digitalWrite(11, LOW);
+      digitalWrite(GLED1, HIGH);
+      digitalWrite(GLED2, HIGH);  
+      digitalWrite(GLED3, HIGH);
+      digitalWrite(GLED4, LOW);
       stage = 7;
     }
     else if ((stage == 7) && (GPS.longitude > longLock - posThresh) && (GPS.longitude < longLock + posThresh))
     {
       Serial.println("Longitude is check!");
-      digitalWrite(8, LOW);
-      digitalWrite(9, LOW);  
-      digitalWrite(10, LOW);
-      digitalWrite(11, HIGH);
+      digitalWrite(GLED1, LOW);
+      digitalWrite(GLED2, LOW);  
+      digitalWrite(GLED3, LOW);
+      digitalWrite(GLED4, HIGH);
       stage = 8;
     }
     else if ((stage >= 8) && (stage <= 10))
@@ -282,26 +283,26 @@ void loop()
         // Lock sequence
         if (stage == 8 && (gz > z_lock[0]) && (x_angle < x_lock[0] + thold && x_angle > x_lock[0] - thold) && (y_angle < y_lock[0] + thold && y_angle > y_lock[0] - thold))
         {
-          digitalWrite(8, HIGH);
-          digitalWrite(9, LOW);  
-          digitalWrite(10, LOW);
-          digitalWrite(11, HIGH);
+          digitalWrite(GLED1, HIGH);
+          digitalWrite(GLED2, LOW);  
+          digitalWrite(GLED3, LOW);
+          digitalWrite(RLED, HIGH);
           stage = 9;
         }
         else if (stage == 9 && gz > z_lock[1] && (x_angle < x_lock[1] + thold && x_angle > x_lock[1] - thold) && (y_angle < y_lock[1] + thold && y_angle > y_lock[1] - thold))
         {
-          digitalWrite(8, LOW);
-          digitalWrite(9, HIGH);  
-          digitalWrite(10, LOW);
-          digitalWrite(11, HIGH);
+          digitalWrite(GLED1, LOW);
+          digitalWrite(GLED2, HIGH);  
+          digitalWrite(GLED3, LOW);
+          digitalWrite(RLED, HIGH);
           stage = 10;    
         }
         else if (stage == 10 && gz > z_lock[2] && (x_angle < x_lock[2] + thold && x_angle > x_lock[2] - thold) && (y_angle < y_lock[2] + thold && y_angle > y_lock[2] - thold))
         {
-          digitalWrite(8, HIGH);
-          digitalWrite(9, HIGH);  
-          digitalWrite(10, LOW);
-          digitalWrite(11, HIGH);
+          digitalWrite(GLED1, HIGH);
+          digitalWrite(GLED2, HIGH);  
+          digitalWrite(GLED3, LOW);
+          digitalWrite(RLED, HIGH);
           stage = 11;
         }
       }  
@@ -314,10 +315,10 @@ void loop()
     }
     else if (stage == 11)
     {
-      digitalWrite(8, LOW);
-      digitalWrite(9, LOW);  
-      digitalWrite(10, LOW);
-      digitalWrite(11, LOW);
+      digitalWrite(GLED1, LOW);
+      digitalWrite(GLED2, LOW);  
+      digitalWrite(GLED3, LOW);
+      digitalWrite(GLED4, LOW);
       digitalWrite(12, LOW);
       Serial.println("ACCESS GRANTED!");
     }     
