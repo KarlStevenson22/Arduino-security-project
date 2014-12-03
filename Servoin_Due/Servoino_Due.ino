@@ -22,7 +22,8 @@ void setup() //Runs once when the board is powered up
   //set cursor to column 0, row 0
   lcd.setCursor(0,0);
 
-  lockServo.attach(8);  
+  lockServo.attach(8);
+  delay(1800);  
   lockServo.write(180);
 }
 
